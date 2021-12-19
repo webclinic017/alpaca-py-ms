@@ -1,0 +1,187 @@
+// Autotrader Pub-Sub interface definition
+
+syntax = "proto3";
+
+enum WebSocketAction {
+  subscribe = 0;
+  unsubscribe = 1;
+}
+
+enum OrderType {
+  market     = 0;
+  limit      = 1;
+  stop       = 2;
+  stop_limit = 3;
+  bracket    = 4; // Not valid in Alpaca
+  trailing_stop = 5;
+}
+
+enum OrderSide {
+  buy  = 0;
+  sell = 1;
+}
+
+enum TimeInForce {
+  day = 0;
+  gtc = 1;
+  opg = 2;
+  cls = 3;
+  ioc = 4;
+  fok = 5;
+}
+
+// Possible order statuses
+// https://alpaca.markets/docs/trading-on-alpaca/orders/#order-lifecycle
+enum OrderStatus {
+  new = 0;
+  partially_filled = 1;
+  filled = 2;
+  done_for_day = 3;
+  canceled = 4;
+  expired = 5;
+  replaced = 6;
+  pending_cancel = 7;
+  pending_replace = 8;
+  accepted = 9;
+  pending_new = 10;
+  accepted_for_bidding = 11;
+  stopped = 12;
+  rejected = 13;
+  suspended = 14;
+  calculated = 15;
+}
+
+message Header {
+  uint64 utc_time = 1;
+};
+
+/* 
+   @message PositionRequest
+   @port    5000
+   @channel
+   @publisher screener
+   @summary Request to open a position from screener
+*/
+message PositionRequest {
+   Header    hdr = 1;            // Message header
+   string    ticker = 2;       // Ticker to open position on
+   float     entry_price = 3;  // Recommended entry price [optional]
+   float     exit_price = 4;   // Recommended exit price [optional]
+   float     stop_limit = 5;   // Recommended stop limit [optional]
+   float     stop_loss = 6;    // Recommended stop loss [optional]
+   OrderType order_type = 7;   // Type of order 
+   bool      short = 8;        // If TRUE, open a short position
+}
+
+/*
+   @message Trade
+   @port    5001
+   @channel T
+   @publisher alpaca
+   @summary Last trade executed for a given ticker 
+*/
+message Trade {
+    Header  hdr = 1;                // Message header
+    string  sym = 2;                // Symbol Ticker
+    string  exchange = 3;           // Exchange Code
+    float   price = 4;              // Trade price
+    uint32  size = 5;               // Trade size
+    uint64  timestamp = 6;          // Trade Timestamp ( POSIX_NS )
+    string  tape = 7;               // Tape
+    repeated bytes conditions = 8;  // Conditions
+};
+
+/*
+   @message Quote
+   @port    5002
+   @channel Q
+   @publisher polygon
+   @summary Last quote for a given ticker
+*/
+message Quote {
+    string  ev = 1;             // Event Type
+    string  sym = 2;            // Symbol Ticker
+    int32   bx = 3;             // Bix Exchange ID
+    float   bp = 4;             // Bid Price
+    int32   bs = 5;             // Bid Size
+    int32   ax = 6;             // Ask Exchange ID
+    float   ap = 7;             // Ask Price
+    int32   as = 8;             // Ask Size
+    repeated int32  c = 9;      // Quote Condition
+    int64   t = 10;             // Quote Timestamp ( POSIX_TIME )
+};
+
+/*
+   @message Aggregate
+   @port    5003
+   @channel A
+   @publisher alpaca
+   @summary minute/second aggregate data for a given ticker
+*/
+message Aggregate {
+    Header  hdr = 1;            // Message header
+    string  ev = 2;             // Event Type ( A = Second Agg, AM = Minute Agg )
+    string  sym = 3;            // Symbol Ticker
+    int32   v = 4;              // Tick Volume
+    int32   av = 5;             // Accumulated Volume ( Today )
+    float   op = 6;             // Today's official opening price
+    float   vw = 7;             // VWAP (Volume Weighted Average Price)
+    float   o = 8;              // Tick Open Price
+    float   c = 9;              // Tick Close Price
+    float   h = 10;             // Tick High Price
+    float   l = 11;             // Tick Low Price
+    float   a = 12;             // Tick Average / VWAP Price
+    int64   s = 13;             // Tick Start Timestamp ( POSIX_MS )
+    int64   e = 14;             // Tick End Timestamp ( POSIX_MS )
+};
+
+/*
+   @message PolygonRequest
+   @port    5004
+   @channel
+   @publisher position_manager
+   @summary request to subscribe or unsubscribe from WS channels
+*/
+message PolygonRequest {
+  Header          hdr = 1;      // Message header
+  string          channel = 2;  // Channel to perform action on
+  WebSocketAction action = 3;   // SUBSCRIBE OR UNSUBSCRIBE
+};
+
+/*
+   @message Order
+   @port    5005
+   @channel
+   @publisher alpaca
+   @summary Alpaca message used to provide order status and updates
+   https://alpaca.markets/docs/api-documentation/api-v2/orders/#properties
+*/
+message Order {
+  Header         hdr = 1;      // Message header
+  string         id = 2;
+  string         client_order_id = 3;
+  string         created_at = 4;
+  string         updated_at = 5;
+  string         submitted_at = 6;
+  string         filled_at = 7;
+  string         expired_at = 8;
+  string         cancelled_at = 9;
+  string         failed_at = 10;
+  string         replaced_at = 11;
+  string         replaced_by = 12;
+  string         replaces = 13;
+  string         asset_id = 14;
+  string         symbol = 15;
+  string         asset_class = 16;
+  uint32         qty = 17;
+  uint32         filled_qty = 18;
+  OrderType      type = 19;
+  OrderSide      side = 20;
+  TimeInForce    time_in_force = 21;
+  float          limit_price = 22;
+  float          stop_price = 23;
+  float          filled_avg_price = 24;
+  OrderStatus    status = 25;
+  bool           extended_hours = 26;
+  repeated Order legs = 27;
+}

@@ -1,6 +1,15 @@
 # alpaca-py-ms
-Python microservice for interacting with the Alpaca Trade API.
+**This repo is a work in progress - not yet complete**
 
+Python microservice for interacting with the Alpaca Trading API. The intention of this project is to be a single service running alongside others making up a complete trading system. It seeks to accomplish the following:
+- Manage connection with Alpaca websocket client, publish order updates for use by other microservices (portfolio manager, etc)
+- Handle minute bars from Alpaca websocket, aggregate the data and populate longer duration bars in Alpaca MarketStore
+  - https://github.com/alpacahq/marketstore
+  - https://github.com/alpacahq/pymarketstore
+
+
+
+### Environment variables summary
 | Var                     | Type   | Description                                               |
 |-------------------------|--------|-----------------------------------------------------------|
 | ALPACA_MS_LOG_DIRECTORY | string | Directory to write run logs and recorded message binaries |

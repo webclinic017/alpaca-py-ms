@@ -151,7 +151,6 @@ class AlpacaRestAPI(alpaca_trade_api.REST):
         }
         return {a.pop('symbol') for a in asset_d.values()}
 
-
 if __name__ == '__main__':
     api = AlpacaRestAPI()
     order = api.submit_order(

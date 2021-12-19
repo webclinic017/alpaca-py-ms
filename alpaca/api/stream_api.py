@@ -186,9 +186,9 @@ class AlpacaWebSocket(alpaca_trade_api.Stream):
             time.sleep(30)
 
     @staticmethod
-    def Run(kill_event=None) -> int:
+    def Run(kill_event=None):
         """Create and start AlpacaWebSocket. Monitor status of websockets and exit with code 1 if any
-        websocket disconnects. A bash script should used around this call to handle re-connection.
+        websocket disconnects. A bash script should be used around this call to handle re-connection.
         @param kill_event:
         """
 

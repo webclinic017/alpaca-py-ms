@@ -7,8 +7,20 @@ blue=$(tput setaf 4)
 reset=$(tput sgr0)
 
 # ========================================================================
-# @brief updateAlpacaPackages
-# Update python packages from GitHub
+# @brief createMarketstoreContainer
+# Create and initialize marketstore Docker container
+function createMarketstoreContainer()
+{
+  echo "Starting Marketstore container"
+  local CONFIG_FILE=$ALPACA_MS_ROOT/alpaca/conf/mkts.yml
+  sudo docker create --name mktsdb --restart always -p 5993:5993 alpacamarkets/marketstore:latest
+  sudo docker cp $CONFIG_FILE mktsdb:/etc/mkts.yml
+  sudo docker start -i mktsdb
+}
+
+# ========================================================================
+# @brief runMarketstoreContainer
+# Create and run marketstore container
 function updateAlpacaPackages()
 {
   echo "Updating Alpaca Trade API"

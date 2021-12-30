@@ -10,12 +10,15 @@ import threading
 import time
 import traceback
 import alpaca_trade_api
-
-from alpaca.interface.generated.interface_pb2 import Order, Aggregate, Trade
-from alpaca.api.utilities import ORDER_STATUS_TRANSFORM
-from alpaca.interface.utilities import proto_utilities
-from alpaca.conf.config import AlpacaMsConfiguration, configure_logging
 from google.protobuf.json_format import ParseDict
+
+# Local imports
+from alpaca.interface.generated.interface_pb2 import Order, Aggregate, Trade
+from alpaca.interface.utilities import proto_utilities
+from alpaca.api.utilities import ORDER_STATUS_TRANSFORM
+from alpaca.conf.config import AlpacaMsConfiguration, configure_logging
+from alpaca.api.marketstore_api import MarketStoreApi
+from alpaca.common.universe import SymbolUniverse
 
 
 class AlpacaWebSocket(alpaca_trade_api.Stream):
@@ -33,6 +36,9 @@ class AlpacaWebSocket(alpaca_trade_api.Stream):
 
         # Set up logging
         self.logger = logging.getLogger('alpaca')
+
+        # Create Marketstore API
+        self.marketstore = MarketStoreApi()
 
         # Configure socket for publishing
         self.logger.info("Creating Order socket")
@@ -63,7 +69,9 @@ class AlpacaWebSocket(alpaca_trade_api.Stream):
         self.subscribe_trade_updates(self.process_order)
 
         # Subscribe to all minute aggregate data
-        self.subscribe_bars(self.process_bar_data, "*")
+        symbols = list(SymbolUniverse().data.index)
+        for sym in symbols:
+            self.subscribe_bars(self.process_bar_data, sym)
 
         # Subscribe to crypto pairs
         self.subscribe_crypto_bars(self.process_crypto, '*')
@@ -109,6 +117,9 @@ class AlpacaWebSocket(alpaca_trade_api.Stream):
         self.msg_counts['bar'] += 1
         symbol = bar_data['S']
         time_ms = int(time.time_ns() / 1e6)
+
+        # Write to Marketstore
+        self.marketstore.insert(bar_data)
 
         # Pack protobuf message
         self.aggregate.Clear()

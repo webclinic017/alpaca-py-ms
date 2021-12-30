@@ -135,7 +135,13 @@ if __name__ == "__main__":
 
     ohlcv.df.ta.log_return(cumulative=True, append=True)
     ohlcv.df.ta.sma(length=10, append=True)
-    ohlcv.df.ta.alma(close='close', length=20, sigma=6, distribution_offset=0.85, append=True)
+
+    t0 = time.time()
+    for i in range(4000):
+        ohlcv.df.ta.alma(close='close', length=20, sigma=6, distribution_offset=0.85, append=True)
+    t1 = time.time()
+    print((t1-t0)/4000)
+    ohlcv.df.to_csv("local.csv")
 
 
     print()

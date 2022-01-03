@@ -20,6 +20,7 @@ this = sys.modules[__name__]
 this.ALPACA_MS_ROOT = None  # Root directory
 this.LOG_DIRECTORY = None  # log output directory
 this.DATA_DIRECTORY = None  # Local data storage directory
+this.CONF_DIRECTORY = None  # Configuration directory
 
 
 # Configure root directory
@@ -34,6 +35,7 @@ def get_alpaca_ms_root() -> Path:
     # Set module variable and environment variable
     this.ALPACA_MS_ROOT = dir_path
     this.DATA_DIRECTORY = dir_path / 'data'
+    this.CONF_DIRECTORY = dir_path / 'alpaca/conf'
     os.environ['ALPACA_MS_ROOT'] = str(dir_path)
     return dir_path
 
@@ -109,5 +111,6 @@ class AlpacaMsConfiguration:
         self.api_key = key_d.get('api_key', os.getenv('APCA_API_KEY_ID', None))
         self.secret_key = key_d.get('secret_key', os.getenv('APCA_API_SECRET_KEY', None))
         self.base_url = key_d.get('base_url', os.getenv('APCA_API_BASE_URL', None))
+
 
 configure_logging()

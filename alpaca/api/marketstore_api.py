@@ -10,10 +10,8 @@ import re
 from typing import List
 
 import yaml
-import time
 import numpy as np
 import pandas as pd
-import pandas_market_calendars as mcal
 
 # Third Party
 import alpaca_trade_api
@@ -104,14 +102,20 @@ class MarketStoreApi(pymarketstore.Client):
         """
         Remove data from MarketStore database.
         :param symbol: symbol to query
-        :param timeframe: timeframe string (1Min, 2H, etc.)
+        :param timeframe: timeframe string (1Min, 2H, etc.), "*" to remove all data
         """
-        table_str = "{}/{}/OHLCV".format(symbol, timeframe)
-        try:
-            self.logger.warning("Removing {}".format(table_str))
-            self.destroy(table_str)
-        except Exception as e:
-            self.logger.error("Error removing {}: {}".format(table_str, e))
+        if timeframe == "*":
+            timeframe_l = self.config.get_timeframes()
+        else:
+            timeframe_l = [timeframe]
+
+        for tf in timeframe_l:
+            table_str = "{}/{}/OHLCV".format(symbol, tf)
+            try:
+                self.logger.warning("Removing {}".format(table_str))
+                self.destroy(table_str)
+            except Exception as e:
+                self.logger.error("Error removing {}: {}".format(table_str, e))
 
     def clear_database(self):
         """
@@ -208,7 +212,7 @@ def convert_dataframe(df: pd.DataFrame) -> np.array:
     :return: reshaped ndarray of tuples per MarketStore API
     """
     df.columns = df.columns.str.lower()
-    df['epoch'] = df.index.astype('int64') // 1e9
+    df['epoch'] = df.index.view('int64') // 1e9
     df.reset_index(inplace=True)
     df = df[['epoch', 'open', 'high', 'low', 'close', 'volume']]
     return np.array([tuple(v) for v in df.values.tolist()], dtype=MarketStoreApi.DATA_TYPES)
@@ -216,12 +220,28 @@ def convert_dataframe(df: pd.DataFrame) -> np.array:
 
 if __name__ == '__main__':
 
-    symbol_list = ['NVDA', 'BAC']
+    symbol_list = ['NVDA', 'BAC', 'MRK']
 
     # Typical API usage
-    configure_logging()
+    configure_logging()  # This is a package level construct that would be called in a main-like program
+
+    # Create the API
     api = MarketStoreApi()
 
-    # Pre-populate data
-    # This will insert the latest N (HISTORY_LENGTH) bars into the database
+    # Populate some data, bar types take from mkts.yml file
     api.populate(symbol_list)
+
+    # Query data for a symbol
+    df = api.query_data('NVDA', '15Min')
+
+    # Remove data for a given symbol, * will remove all bar widths for symbol
+    api.remove_data('BAC', '*')
+
+    # Trim number of rows for a given bar width (all symbols)
+    api.trim({'15Min': 250})
+
+    # Verify reduction of bars for 15Min data
+    df2 = api.query_data('NVDA', '15Min')
+    print("N bars: {}".format(len(df2)))
+
+    print()

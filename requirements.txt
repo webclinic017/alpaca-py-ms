@@ -7,3 +7,4 @@ PyYAML~=6.0
 psutil~=5.8.0
 pyzmq~=22.3.0
 python-dateutil~=2.8.2
+git+https://github.com/alpacahq/alpaca-trade-api-python@master

@@ -15,7 +15,7 @@ setup(
     name='alpaca-py-ms',
     version=version,
     description='Alpaca Python API microservice',
-    long_description=README,
+    long_description="",
     long_description_content_type='text/markdown',
     author='Jeff Aggas',
     author_email='jeffrey.aggas@gmail.com',

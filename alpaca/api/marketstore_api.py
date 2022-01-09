@@ -244,4 +244,5 @@ if __name__ == '__main__':
     df2 = api.query_data('NVDA', '15Min')
     print("N bars: {}".format(len(df2)))
 
+    api.clear_database()
     print()

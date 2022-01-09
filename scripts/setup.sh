@@ -19,7 +19,7 @@ function createMarketstoreContainer()
 }
 
 # ========================================================================
-# @brief runMarketstoreContainer
+# @brief updateAlpacaPackages
 # Create and run marketstore container
 function updateAlpacaPackages()
 {

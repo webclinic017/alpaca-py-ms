@@ -43,10 +43,10 @@ class AlpacaWebSocket(alpaca_trade_api.Stream):
         # Configure socket for publishing
         self.logger.info("Creating Order socket")
         proto_parser = proto_utilities.ProtoParser()
-        self.data_sockets = {'order': proto_parser.get_socket('Order', sub=False, bind=True),
-                             'bar': proto_parser.get_socket('Aggregate', sub=False, bind=True),
-                             'trade': proto_parser.get_socket('Trade', sub=False, bind=True),
-                             'crypto': None}
+        # self.data_sockets = {'order': proto_parser.get_socket('Order', sub=False, bind=True),
+        #                     'bar': proto_parser.get_socket('Aggregate', sub=False, bind=True),
+        #                     'trade': proto_parser.get_socket('Trade', sub=False, bind=True),
+        #                     'crypto': None}
         self.aggregate = Aggregate()
         self.trade = Trade()
         self.event = threading.Event()
@@ -59,7 +59,7 @@ class AlpacaWebSocket(alpaca_trade_api.Stream):
         self.event.set()
         loop = asyncio.get_event_loop()
         loop.run_until_complete(self.stop_ws())
-        _ = [socket.close() for socket in self.data_sockets.values()]
+        # _ = [socket.close() for socket in self.data_sockets.values()]
         self.heartbeat.join()
 
     def _initialize(self):
@@ -106,7 +106,7 @@ class AlpacaWebSocket(alpaca_trade_api.Stream):
 
         # Publish on socket
         topic = msg.symbol
-        self.data_sockets['order'].send_multipart([topic.encode(), msg.SerializeToString()])
+        # self.data_sockets['order'].send_multipart([topic.encode(), msg.SerializeToString()])
 
     async def process_bar_data(self, bar_data: dict):
         """Process Aggregate (bar) data
@@ -139,8 +139,8 @@ class AlpacaWebSocket(alpaca_trade_api.Stream):
         self.bar_time[symbol] = time_ms
 
         # Publish on socket, use symbol as topic name
-        self.data_sockets['bar'].send_multipart(
-            [symbol.encode(), self.aggregate.SerializeToString()])
+        # self.data_sockets['bar'].send_multipart(
+        #    [symbol.encode(), self.aggregate.SerializeToString()])
 
     async def process_trade_data(self, trade_data: dict):
         """Process Trade data
@@ -163,8 +163,8 @@ class AlpacaWebSocket(alpaca_trade_api.Stream):
         _ = [self.trade.conditions.append(c.encode('utf-8')) for c in trade_data['c']]
 
         # Publish on socket, use symbol as topic name
-        self.data_sockets['trade'].send_multipart(
-            [symbol.encode(), self.trade.SerializeToString()])
+        # self.data_sockets['trade'].send_multipart(
+        #    [symbol.encode(), self.trade.SerializeToString()])
 
     def log_status(self):
         """Logs websocket status and message count every 30 seconds.

@@ -21,10 +21,4 @@ setup(
     author_email='jeffrey.aggas@gmail.com',
     url='https://github.com/jaggas/alpaca-py-ms',
     keywords='financial,timeseries,api,trade',
-    packages=[
-        'alpaca-py-ms',
-    ],
-    install_requires=REQUIREMENTS,
-    tests_require=REQUIREMENTS_TEST,
-    setup_requires=['pytest-runner', 'flake8'],
 )

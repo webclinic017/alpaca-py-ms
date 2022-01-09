@@ -11,16 +11,6 @@ with open('alpaca/__init__.py', 'rb') as f:
     version = str(ast.literal_eval(_version_re.search(
         f.read().decode('utf-8')).group(1)))
 
-with open('README.md') as readme_file:
-    README = readme_file.read()
-
-with open(os.path.join("requirements", "requirements.txt")) as reqs:
-    REQUIREMENTS = reqs.readlines()
-
-with open(os.path.join("requirements", "requirements_test.txt")) as reqs:
-    REQUIREMENTS_TEST = reqs.readlines()
-
-
 setup(
     name='alpaca-py-ms',
     version=version,
